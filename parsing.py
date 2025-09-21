@@ -33,9 +33,7 @@ def news_list(curr):
             added_headlines.append(title_name)
 
     articles = sorted(output, key=lambda x: int(x[3]), reverse=True)
-
-    for x in articles:
-        print(x)
+    return (articles)
     
 
 

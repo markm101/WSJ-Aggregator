@@ -13,24 +13,25 @@ economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialecono
 
 i = 0
 
+total = []
 while i < 4:
     if i == 0:
         print("worldnews")
-        news_list(worldnews)
+        total += news_list(worldnews)
     elif i == 1:
         print("business")
-        news_list(business)
+        total += news_list(business)
     elif i == 2:
         print("markets")
-        news_list(markets)
+        total += news_list(markets)
     elif i == 3:
         print("tech")
-        news_list(tech)
+        total += news_list(tech)
     elif i == 4:
         print("economy")
-        news_list(economy)
+        total += news_list(economy)
 
     i += 1
 
-
+print(total)
         
