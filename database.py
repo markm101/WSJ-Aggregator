@@ -11,7 +11,8 @@ def make_table():
         id INTEGER UNIQUE,
         headline TEXT,
         date INTEGER,
-        month TEXT
+        month TEXT,
+        column TEXT
     )
     """)
 
@@ -24,31 +25,33 @@ def get_latestID():
 
     return(ID)
 
-def add_articles(headline, date, month):
+def add_articles(headline, date, month, column):
     try:
         last = get_latestID()
     except:
         last = 1
-    try:
-        cursor.execute("""
-        INSERT INTO news VALUES 
-        ({}, '{}', {}, {})
+    #try:
+    cursor.execute("""
+    INSERT INTO news VALUES 
+    ({}, '{}', {}, '{}', '{}')    
         
-        
-        """.format(last, headline, date, month))
-        connection.commit()
-    except:
-        print("Invalid Entries, please retry")
+    """.format(last, headline, date, month, column))
+    connection.commit()
+    #except:
+        #print("Invalid Entries, please retry")
 
 
 def all_articles():
 
-    num = get_latestID()
-    i = 0
-    while i < 3:
+    last = get_latestID()
+    x = 0
+    while x < last:
         cursor.execute("""
-        SELECT * FROM news
-        WHERE id = '{}'
-        """.format(i))
+            SELECT * FROM news
+            WHERE id = '{}'
+            """.format(x))
 
         print(cursor.fetchall())
+        print('\n')
+
+        x += 1

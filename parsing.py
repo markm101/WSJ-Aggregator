@@ -14,7 +14,7 @@ added_headlines = []
 
 month = datetime.datetime.now().strftime("%b")
 day = datetime.datetime.now().strftime("%d")
-def news_list(curr):
+def news_list(curr, column):
 
     output = []
     curr.raise_for_status()
@@ -30,8 +30,8 @@ def news_list(curr):
         title_hour = title_date[17:19]
     
         if (title_month == month) and (title_name not in added_headlines) and title_day == day:
-            output.append([title_name, title_weekday, title_day, title_hour, title_month, title_year])
-            add_articles(title_name, title_day, title_month)
+            output.append([title_name, title_weekday, title_day, title_hour, title_month, title_year, column])
+            add_articles(title_name, title_day, title_month, column)
             added_headlines.append(title_name)
 
     articles = sorted(output, key=lambda x: int(x[3]), reverse=True)

@@ -11,27 +11,26 @@ tech = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWSJD', head
 economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialeconomyfeed', headers=headers)
 
 
-i = 0
-total = []
-make_table()
-while i < 4:
-    if i == 0:
-        print("worldnews")
-        news_list(worldnews)
-    elif i == 1:
-        print("business")
-        news_list(business)
-    elif i == 2:
-        print("markets")
-        news_list(markets)
-    elif i == 3:
-        print("tech")
-        news_list(tech)
-    elif i == 4:
-        print("economy")
-        news_list(economy)
+selected == 2
 
-    i += 1
 
-        
+def update_list():
+    i = 0
+    total = []
+    make_table()
+    while i < 4:
+        if i == 0:
+            news_list(worldnews, "world news")
+        elif i == 1:
+            news_list(business, "business")
+        elif i == 2:
+            news_list(markets, "markets")
+        elif i == 3:
+            news_list(tech, "tech")
+        elif i == 4:
+            news_list(economy, "economy")
+
+        i += 1
+
+update_list()
 all_articles()
