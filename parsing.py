@@ -9,14 +9,14 @@ markets = requests.get('https://feeds.content.dowjones.io/public/rss/RSSMarketsM
 tech = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWSJD', headers=headers)
 economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialeconomyfeed', headers=headers)
 
-i = 0
-added_headlines = []
+
 
 month = datetime.datetime.now().strftime("%b")
 day = datetime.datetime.now().strftime("%d")
-def news_list(curr, column):
+def news_list(curr, column, choice):
 
     output = []
+    added_headlines = []
     curr.raise_for_status()
     soup = bs4.BeautifulSoup(curr.content, 'xml')
 
@@ -31,7 +31,7 @@ def news_list(curr, column):
     
         if (title_month == month) and (title_name not in added_headlines) and title_day == day:
             output.append([title_name, title_weekday, title_day, title_hour, title_month, title_year, column])
-            add_articles(title_name, title_day, title_month, column)
+            add_articles(title_name, title_day, title_month, column, choice)
             added_headlines.append(title_name)
 
     articles = sorted(output, key=lambda x: int(x[3]), reverse=True)
