@@ -12,6 +12,11 @@ economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialecono
 
 
 def update_list(choice): 
+    '''
+        Updates the list of a given choice with the most recent news articles       
+        Instead of restarting the lists every time, append to the lists
+        Plan : Reset the list every few days for easier storage
+    '''
     i = 0
     total = []
     make_table(choice)
@@ -29,6 +34,30 @@ def update_list(choice):
 
         i += 1
 
+
+def find_updates(choice):
+    '''
+        Given the most recently updated choice, find the most recent updates to the news
+        uses get_latestID and get_headline
+        Compares the latest id of the updated list to the previous list, if its greater that means theres more elements and therefore newer articles
+        TEST FOR BUGS         TEST FOR BUGS         TEST FOR BUGS         TEST FOR BUGS 
+    '''
+    out = []
+    if choice == 1:
+        i = get_latestID(1)
+        while i > 0:
+            if i > get_latestID(2):
+                print(get_headline(i, 1))
+
+
+    if choice == 2:
+        i = get_latestID(2)
+        while i > 0:
+            if i > get_latestID(1):
+                print(get_headline(i, 2))
+
+
+
 choice = 1
 update_list(1)
 all_articles(1)
@@ -37,6 +66,9 @@ choice = 2
 update_list(2)
 print("updated")
 all_articles(2)
+
+
+
 
 
 # Make a compare tables function next, 

@@ -50,6 +50,20 @@ def get_latestID(choice):
         ID = (last[0][0] + 1)
 
         return(ID)
+def get_headline(ID, choice)
+    if choice == 1:
+        cursor.execute("""
+            SELECT headline FROM news1
+            WHERE id = '{}'
+        """.format(ID))
+
+    if choice == 2:
+        cursor.execute("""
+            SELECT headline FROM news2
+            WHERE id = '{}'
+        """.format(ID))
+
+    return (cursor.fetchall())
 
 def add_articles(headline, date, month, column, choice):
     if choice == 1:
@@ -111,4 +125,5 @@ def all_articles(choice):
             print('\n')
 
             x += 1
+
 
