@@ -56,13 +56,13 @@ def get_headline(ID, choice):
         cursor.execute("""
             SELECT headline FROM news1
             WHERE id = '{}'
-        """.format(ID))
+            """.format(ID))
 
     if choice == 2:
         cursor.execute("""
             SELECT headline FROM news2
             WHERE id = '{}'
-        """.format(ID))
+            """.format(ID))
 
     return (cursor.fetchall())
 
@@ -72,30 +72,28 @@ def add_articles(headline, date, month, column, choice):
             last = get_latestID(1)
         except:
             last = 1
-        #try:
-        cursor.execute("""
-        INSERT INTO news1 VALUES 
-        ({}, '{}', {}, '{}', '{}')    
-
-        """.format(last, headline, date, month, column))
-        connection.commit()
-        #except:
-            #print("Invalid Entries, please retry")
+        try:
+            cursor.execute("""
+                INSERT INTO news1 VALUES 
+                ({}, "{}", {}, "{}", "{}")    
+                """.format(last, headline, date, month, column))
+            connection.commit()
+        except:
+            print(f'Error at: {headline}')
 
     if choice == 2:
         try:
             last = get_latestID(2)
         except:
             last = 1
-        #try:
-        cursor.execute("""
-        INSERT INTO news2 VALUES 
-        ({}, '{}', {}, '{}', '{}')    
-
-        """.format(last, headline, date, month, column))
-        connection.commit()
-        #except:
-            #print("Invalid Entries, please retry")
+        try:
+            cursor.execute("""
+                INSERT INTO news2 VALUES 
+                ({}, '{}', {}, '{}', '{}')    
+                """.format(last, headline, date, month, column))
+            connection.commit()
+        except:
+            print(f'Error at {headline}')
 
 
 def all_articles(choice):
