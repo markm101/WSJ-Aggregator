@@ -50,7 +50,8 @@ def get_latestID(choice):
         ID = (last[0][0] + 1)
 
         return(ID)
-def get_headline(ID, choice)
+
+def get_headline(ID, choice):
     if choice == 1:
         cursor.execute("""
             SELECT headline FROM news1

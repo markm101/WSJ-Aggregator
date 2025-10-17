@@ -58,14 +58,8 @@ def find_updates(choice):
 
 
 
-choice = 1
 update_list(1)
-all_articles(1)
 
-choice = 2
-update_list(2)
-print("updated")
-all_articles(2)
 
 
 
