@@ -14,6 +14,14 @@ economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialecono
 month = datetime.datetime.now().strftime("%b")
 day = datetime.datetime.now().strftime("%d")
 def news_list(curr, column, choice):
+    '''
+    curr = which rss to use
+    column = the name of the column for add_articles updates
+    choice = which list to update with new values
+
+
+    
+    '''
 
     output = []
     added_headlines = []
