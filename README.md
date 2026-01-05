@@ -1,6 +1,5 @@
-# Project Title
+# Wall Street Journal News Aggregate
 
-Wall Street Journal News Aggregate
 ## Description
 
 A Wall Street Journal Aggregator that presents news articles in an easily accessible way using the Wall Street Journal RSS feed
