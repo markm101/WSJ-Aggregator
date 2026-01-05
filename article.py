@@ -9,8 +9,6 @@ class Article():
 
         #Sample: Mon, 05 Jan 2026 04:10:55 GMT
         format_str = "%a, %d %b %Y %H:%M:%S %Z"
-        #Adjust for GMT Timezone by subtracting five hour timedelta
-        #self.date = datetime.datetime.strptime(date, format_str) - datetime.timedelta(hours=5)
         self.date = datetime.datetime.strptime(date, format_str).astimezone(timezone)
         self.timezone = timezone
 

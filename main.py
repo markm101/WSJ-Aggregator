@@ -12,9 +12,9 @@ if __name__ == "__main__":
 
     timeZone = input('1) PST   2) CST   3) EST\n')
     if timeZone == '1':
-        timeZone = datetime.timezone(datetime.timedelta(hours=-18), 'PST')
+        timeZone = datetime.timezone(datetime.timedelta(hours=-13), 'PST')
     if timeZone == '2':
-        timeZone = datetime.timezone(datetime.timedelta(hours=-12), 'CST')
+        timeZone = datetime.timezone(datetime.timedelta(hours=-11), 'CST')
     if timeZone == '3':
         timeZone  = datetime.timezone(datetime.timedelta(hours=-10), 'EST')
 
@@ -22,15 +22,9 @@ if __name__ == "__main__":
     format_str = "%m-%d-$Y"
     date = datetime.datetime.fromisoformat(date).astimezone(timeZone)
 
-
-
     final = []
     feeds = [worldnews, business, markets, tech, economy]
     for x in feeds:
-        '''
-        for y in news_list(x, datetime.datetime(2026, 1, 4) - datetime.timedelta(hours=5)):
-            final.append(str(y) + '\n')
-            '''
         for y in news_list(x, timeZone, date):
             final.append(str(y) + '\n')
 
