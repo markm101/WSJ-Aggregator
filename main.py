@@ -22,5 +22,5 @@ if __name__ == "__main__":
         for y in news_list(x, datetime.datetime(2026, 1, 4) - datetime.timedelta(hours=5)):
             final.append(str(y) + '\n')
 
-    with open("out.txt", "w") as file:
+    with open("out.txt", "w", encoding='utf-8') as file:
         file.writelines(final)
