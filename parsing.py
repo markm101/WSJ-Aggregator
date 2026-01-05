@@ -3,12 +3,7 @@ import bs4
 import datetime
 from datetime import timedelta
 
-headers = {"User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
-worldnews = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWorldNews', headers=headers)
-business = requests.get('https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness', headers=headers)
-markets = requests.get('https://feeds.content.dowjones.io/public/rss/RSSMarketsMain', headers=headers)
-tech = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWSJD', headers=headers)
-economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialeconomyfeed', headers=headers)
+
 
 
 
@@ -40,7 +35,7 @@ def news_list(curr, column):
         new_art = article(item.find('title').text.strip(), item.find('pubDate').text)
         if new_art not in output:
             output.append(new_art)
-            
+
     output = sorted(output)
     return ([column, ] + output)
     
