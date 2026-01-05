@@ -15,12 +15,12 @@ economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialecono
             news_list(tech, "tech")
             news_list(economy, "economy")
 """
-def main():
+if __name__ == "__main__":
+    final = []
     feeds = [worldnews, business, markets, tech, economy]
     for x in feeds:
         for y in news_list(x, datetime.datetime(2026, 1, 4) - datetime.timedelta(hours=5)):
-            print(y)
+            final.append(str(y) + '\n')
 
-
-if __name__ == "__main__":
-    main()
+    with open("out.txt", "w") as file:
+        file.writelines(final)
