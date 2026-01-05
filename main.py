@@ -1,5 +1,6 @@
 import requests
-from parsing import news_list
+from scraper import news_list
+import datetime
 headers = {"User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
 worldnews = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWorldNews', headers=headers)
 business = requests.get('https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness', headers=headers)
@@ -14,8 +15,12 @@ economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialecono
             news_list(tech, "tech")
             news_list(economy, "economy")
 """
+def main():
+    feeds = [worldnews, business, markets, tech, economy]
+    for x in feeds:
+        for y in news_list(x, datetime.datetime(2026, 1, 4) - datetime.timedelta(hours=5)):
+            print(y)
 
 
-
-for x in news_list(worldnews, "world news"):
-    print(x)
+if __name__ == "__main__":
+    main()
