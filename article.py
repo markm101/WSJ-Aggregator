@@ -2,7 +2,7 @@ import datetime
 
 
 class Article():
-    def __init__(self, title, date, link, column):
+    def __init__(self, title, date, link, column, timezone):
         self.title = title
         self.column = column
         self.link = link
@@ -10,7 +10,9 @@ class Article():
         #Sample: Mon, 05 Jan 2026 04:10:55 GMT
         format_str = "%a, %d %b %Y %H:%M:%S %Z"
         #Adjust for GMT Timezone by subtracting five hour timedelta
-        self.date = datetime.datetime.strptime(date, format_str) - datetime.timedelta(hours=5)
+        #self.date = datetime.datetime.strptime(date, format_str) - datetime.timedelta(hours=5)
+        self.date = datetime.datetime.strptime(date, format_str).astimezone(timezone)
+        self.timezone = timezone
 
     def getDate(self):
         #Day, Month, Year
@@ -20,7 +22,7 @@ class Article():
         return(self.column)
     
     def __str__(self):
-        return (f'{self.title: <82} || {self.getDate()} at {self.date.strftime('%X')[:5]} EST || {self.column} || {self.link}')
+        return (f'{self.title: <82} || {self.getDate()} at {self.date.strftime('%X')[:5]} {self.timezone} || {self.column} || {self.link}')
     
     def __gt__(self, other):
         return self.date > other.date
