@@ -12,21 +12,29 @@ if __name__ == "__main__":
 
     timeZone = input('1) PST   2) CST   3) EST\n')
     if timeZone == '1':
-        timeZone = datetime.timezone(datetime.timedelta(hours=-13), 'PST')
-    if timeZone == '2':
-        timeZone = datetime.timezone(datetime.timedelta(hours=-11), 'CST')
-    if timeZone == '3':
-        timeZone  = datetime.timezone(datetime.timedelta(hours=-10), 'EST')
+        timeZone = datetime.timezone(datetime.timedelta(hours=-8), 'PST')
+    elif timeZone == '2':
+        timeZone = datetime.timezone(datetime.timedelta(hours=-6), 'CST')
+    elif timeZone == '3':
+        timeZone  = datetime.timezone(datetime.timedelta(hours=-5), 'EST')
+    else:
+        timeZone = datetime.timezone.utc
 
-    date = input('Date? (format 2026-01-04)\n')
-    format_str = "%m-%d-$Y"
-    date = datetime.datetime.fromisoformat(date).astimezone(timeZone)
+    date = input('Limit Date? (format 2026-01-04)\n')
+    try:
+        date = datetime.datetime.fromisoformat(date).replace(tzinfo=timeZone)
+    except:
+        print('Not Limiting')
+        date = None
 
-    final = []
+
+    i = 0
+    names = ["World News", "Business", "Markets", "Tech", "Economy"]
     feeds = [worldnews, business, markets, tech, economy]
-    for x in feeds:
-        for y in news_list(x, timeZone, date):
-            final.append(str(y) + '\n')
 
-    with open("out.txt", "w", encoding='utf-8') as file:
-        file.writelines(final)
+    with open("out.txt", "w", encoding="utf-8") as file:
+        for x in feeds:
+            file.writelines(f'----- {names[i]} ----- \n')
+            for y in news_list(x, timeZone, date):
+                file.writelines(str(y) + '\n')
+            i += 1
