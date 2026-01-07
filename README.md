@@ -2,8 +2,7 @@
 
 ## Description
 
-A Wall Street Journal Aggregator that presents news articles in an easily accessible way using the Wall Street Journal RSS feed
-By default all dates will be in Eastern Standard Time
+A Wall Street Journal Aggregator that presents newly published news articles in an easily accessible way using the Wall Street Journal RSS feed
 
 ## Getting Started
 
@@ -15,12 +14,13 @@ This project requires BeautifulSoup4 for XML parsing and requests for fetching f
 
 Clone the repository: git clone https://github.com/markm101/WSJ-Aggregator cd WSJ-Aggregator
 
-Install Beautiful Soup and Requests: pip install beautifulsoup4 lxml requests
+Install Beautiful Soup and Requests: pip install beautifulsoup4 requests
 
 ### Executing program
 
 Adjust limit date within main.py
-Run the mainscript to fetch the latest headlines:
+Run the mainscript to write the latest headlines to out.txt:
+User selects the timezone and a limit date (blank if no limit date is needed)
 ```
 python main.py
 ```
@@ -31,14 +31,6 @@ The generated out.txt would look something like this
 ```
 Global Markets Rally Amid Tech Surge    || 01/05/26 at 23:10 EST || Markets || https://wsj.com/articles/sample-link
 ```
-## Authors
-
-Mark M
-
-## Version History
-
-* 1.0
-    * Initial Release
 
 ## License
 
