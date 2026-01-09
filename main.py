@@ -32,9 +32,9 @@ if __name__ == "__main__":
     names = ["World News", "Business", "Markets", "Tech", "Economy"]
     feeds = [worldnews, business, markets, tech, economy]
 
-    with open("out.txt", "w", encoding="utf-8") as file:
+    with open("output.txt", "w", encoding="utf-8") as file:
         for x in feeds:
-            file.writelines(f'----- {names[i]} ----- \n')
+            file.writelines(f'\n ----- {names[i]} ----- \n \n')
             for y in news_list(x, timeZone, date):
                 file.writelines(str(y) + '\n')
             i += 1
