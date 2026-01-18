@@ -22,7 +22,7 @@ def news_list(curr, timezone, limit_date):
     output = sorted(output)
     return (output)
 
-def new_news(minutes, timeZone):
+def new_news(seconds, timeZone):
     headers = {"User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
     worldnews = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWorldNews', headers=headers)
     business = requests.get('https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness', headers=headers)
@@ -46,6 +46,6 @@ def new_news(minutes, timeZone):
             else:
                 print('News is up to date')
                 break
-        time.sleep(minutes)
+        time.sleep(int(seconds))
     
 

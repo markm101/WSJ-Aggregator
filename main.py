@@ -1,5 +1,5 @@
 import requests
-from scraper import news_list
+import scraper
 import datetime
 
 if __name__ == "__main__":
@@ -20,21 +20,26 @@ if __name__ == "__main__":
     else:
         timeZone = datetime.timezone.utc
 
-    date = input('Limit Date? (format 2026-01-04)\n')
-    try:
-        date = datetime.datetime.fromisoformat(date).replace(tzinfo=timeZone)
-    except:
-        print('Not Limiting')
-        date = None
+    master = input('Select Mode: 1) Standard output.txt print 2) Console Print new articles published\n ')
+    if master == '1':
+        date = input('Limit Date? (format 2026-01-04)\n')
+        try:
+            date = datetime.datetime.fromisoformat(date).replace(tzinfo=timeZone)
+        except:
+            print('Not Limiting')
+            date = None
 
 
-    i = 0
-    names = ["World News", "Business", "Markets", "Tech", "Economy"]
-    feeds = [worldnews, business, markets, tech, economy]
+        i = 0
+        names = ["World News", "Business", "Markets", "Tech", "Economy"]
+        feeds = [worldnews, business, markets, tech, economy]
 
-    with open("output.txt", "w", encoding="utf-8") as file:
-        for x in feeds:
-            file.writelines(f'\n ----- {names[i]} ----- \n \n')
-            for y in news_list(x, timeZone, date):
-                file.writelines(str(y) + '\n')
-            i += 1
+        with open("output.txt", "w", encoding="utf-8") as file:
+            for x in feeds:
+                file.writelines(f'\n ----- {names[i]} ----- \n \n')
+                for y in scraper.news_list(x, timeZone, date):
+                    file.writelines(str(y) + '\n')
+                i += 1
+    
+    elif master == '2':
+        scraper.new_news(input('Time in between checks (seconds)\n'), timeZone)
