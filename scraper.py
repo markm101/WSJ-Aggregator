@@ -8,9 +8,9 @@ def news_list(curr, timezone, limit_date):
     '''
     Returns a list of Article type variables describing the current articles present in the RSS feed of the requested column
 
-    :note: If limit_date is not requested, it is passed as NONE, returning the entire content of the XML file
+    :note: If limit_date is not requested, it is passed as NONE, returning the entire content of the JSON
 
-    :param curr: A response object of a specific column, giving the XML data of the feed
+    :param curr: A response object of a specific column, giving the JSON data of the feed later converted to XML
     :param timezone: Requested timezone object by the user ( PST, EST or CST )
     :param limit_date: A limit date requested by the user
     '''
