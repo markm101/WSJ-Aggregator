@@ -30,21 +30,3 @@ def grade_article_individual(title):
 
     return(response.text)
 
-
-def grade_article_list(list):
-    response = client.models.generate_content(
-        model="gemini-3-flash-preview",
-        contents= f"""
-                    Based on the following list of news article headlines, generate a grade ranging from 1 through 5 based on the relevance of this topic to the greater financial market
-                    Make sure to order the grades in the order that the articles are presented
-                    
-                    Important parameters: 
-                    -DO NOT include any notes about the topic in your response, only the grade in a single digit number  
-                    -Base your grades SOLELY on how this news would effect stocks, bonds, and other assets, not based on political climates 
-                    -Make sure to utilize the fact there are 5 possible grades(1, 2, 3, 4, or 5)
-
-                    "Trump Pushes Plan for Tech Companies to Fund New Power Plants, Fired Thinking Machines Co-Founder Had Undisclosed Relationship With Colleague, There’s a Hit Movie Set Deep Inside an AI Lab—and It Will Give You Goosebumps "
-                   """
-        )
-
-    return(response.text)

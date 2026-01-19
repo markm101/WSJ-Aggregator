@@ -20,14 +20,16 @@ def news_list(curr, timezone, limit_date):
     column = soup.find('channel').find('title').text
 
     #With each item found in curr (column), create a article object and store in the output variable
+    #If the article's title is already in output, do not append it to output
     for item in soup.find_all('item'):
         new_art = Article(item.find('title').text.strip(), item.find('pubDate').text, item.find('link').text, column, timezone)
         if limit_date != None:
-            if new_art.date < limit_date:
-                break
-        #If the article's title is already in output, do not append it to output
-        if new_art not in output:
-            output.append(new_art)
+            if new_art.date > limit_date:
+                if new_art not in output:
+                    output.append(new_art)
+        else:
+            if new_art not in output:
+                output.append(new_art)
 
     # Sorts output based on date, from oldest date to newest date
     output = sorted(output)

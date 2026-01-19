@@ -44,3 +44,6 @@ class Article:
 
     def __eq__(self, other):
         return self.title == other.title
+    
+    def __ne__(self, other):
+        return self.title != other.title
