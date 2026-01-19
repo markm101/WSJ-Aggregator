@@ -43,38 +43,33 @@ def new_news(seconds, timeZone):
     :param seconds: How often the function rechecks for new articles
     :param timeZone: Requested timezone by the user
     '''
-    headers = {"User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
-    worldnews = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWorldNews', headers=headers)
-    business = requests.get('https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness', headers=headers)
-    markets = requests.get('https://feeds.content.dowjones.io/public/rss/RSSMarketsMain', headers=headers)
-    tech = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWSJD', headers=headers)
-    economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialeconomyfeed', headers=headers)
-
-
     timeZone  = datetime.timezone(datetime.timedelta(hours=-5), 'EST')
+    called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
+    
     # sort curr_news by descending order (most recent article first)
-    curr_news =  sorted(news_list(worldnews, timeZone, None) + news_list(business, timeZone, None) + news_list(markets, timeZone, None) + news_list(tech, timeZone, None) + news_list(economy, timeZone, None), reverse=True)
-    while True is True:
+    
+    while True is True:  
 
-        #Fetches the XML feeds (might get rate limited, will have to recheck overnight **)
+        headers = {"User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
         worldnews = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWorldNews', headers=headers)
         business = requests.get('https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness', headers=headers)
         markets = requests.get('https://feeds.content.dowjones.io/public/rss/RSSMarketsMain', headers=headers)
         tech = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWSJD', headers=headers)
         economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialeconomyfeed', headers=headers)
 
+        curr_news = sorted(news_list(worldnews, timeZone, called_time) + news_list(business, timeZone, called_time) + news_list(markets, timeZone, called_time) + news_list(tech, timeZone, called_time) + news_list(economy, timeZone, called_time), reverse=True)
 
+        if curr_news == []:
+            print(f' \n No new articles have been published between {called_time} and {datetime.datetime.now(datetime.UTC).astimezone(timeZone)}')
+        else:
+            print('\nNew articles found')
+            for x in curr_news:
+                print(str(x))
+            print('\n')
 
-        new_news = sorted(news_list(worldnews, timeZone, None) + news_list(business, timeZone, None) + news_list(markets, timeZone, None) + news_list(tech, timeZone, None) + news_list(economy, timeZone, None), reverse=True)
-        i = 0
-        while i < len(curr_news):
-            if curr_news[i] != new_news[i]:
-                print(str(new_news[i]))
-                
-                i += 1
-            else:
+        print(f'The refresh time will now be set to {called_time}')
+
                 print('News is up to date')
-                break
         time.sleep(int(seconds))
     
 
