@@ -68,7 +68,7 @@ def new_news(seconds, timeZone):
             print('\n')
 
         called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
-        print(f'The refresh time will now be set to {called_time}')
+        print(f'\nThe refresh time will now be set to {called_time}')
 
         time.sleep(int(seconds))
 
