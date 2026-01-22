@@ -22,7 +22,7 @@ def news_list(curr, timezone, limit_date):
     #With each item found in curr (column), create a article object and store in the output variable
     #If the article's title is already in output, do not append it to output
     for item in soup.find_all('item'):
-        new_art = Article(item.find('title').text.strip(), item.find('pubDate').text, item.find('link').text, column, timezone)
+        new_art = Article(item.find('title').text.strip(), item.find('pubDate').text, item.find('link').text, item.find('description'), column, timezone)
         if limit_date != None:
             if new_art.date > limit_date:
                 if new_art not in output:
