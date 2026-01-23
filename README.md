@@ -35,6 +35,7 @@ The generated out.txt would look something like this
 Global Markets Rally Amid Tech Surge    || 01/05/26 at 23:10 EST || Markets || https://wsj.com/articles/sample-link
 ```
 When generating a live feed to console the output will look the same
+When generating a live feed to discord, the output would be an embed styled like so]
 ![When generating a live feed to discord, the output would be an embed styled like so](example.png)
 ## License
 
