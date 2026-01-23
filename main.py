@@ -20,7 +20,7 @@ if __name__ == "__main__":
     else:
         timeZone = datetime.timezone.utc
 
-    master = input('Select Mode: 1) Standard output.txt print 2) Console Print new articles published 3)Discord Mode 4) AI Console Mode: \n ')
+    master = input('Select Mode: 1) Standard output.txt print 2) Console Print new articles published 3)Discord + AI Mode \n ')
     if master == '1':
         date = input('Limit Date? (format 2026-01-04)\n')
         try:
@@ -45,4 +45,4 @@ if __name__ == "__main__":
         scraper.new_news(input('Time in between checks (seconds)\n'), timeZone)
 
     elif master == '3':
-        scraper.discord_start(input('Enter Bot Token: \n'))
+        scraper.discord_start(input('Enter Bot Token: \n'), input('Enter Gemini Token (Leave blank for none): \n'))

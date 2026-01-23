@@ -109,7 +109,7 @@ def discord_start(disc_token, gemini_token):
                 for x in curr_news:
                     my_embed = discord.Embed(title = x.title, description = f'{x.desc} [Link]({x.link})' , timestamp = x.date, type = x.column, color=0xFF0000)
                     if gemini_token is not None:
-                        my_embed.add_field(name = 'AI Grade', value = grade_article(gemini_token, x.title))
+                        my_embed.add_field(name = 'AI Grade', value = f'{grade_article(gemini_token, x.title)} out of 5')
                     #my_embed.add_field(name = 'Link', value = f'[Link]({x.link})', inline=False)
                     await ctx.send(embed=my_embed)
 
@@ -118,7 +118,7 @@ def discord_start(disc_token, gemini_token):
 
             time.sleep(int(seconds))
 
-    bot.run(f'{token}')
+    bot.run(f'{disc_token}')
 
 
 def grade_article(token, article):
