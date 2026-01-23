@@ -9,12 +9,15 @@ A Wall Street Journal Aggregator that presents newly published news articles in 
 ### Dependencies
 
 This project requires BeautifulSoup4 for XML parsing and requests for fetching feeds.
+While optional, discord.py and google gemini's libraries are also recommended if users would like to use the discord tool feature
 
 ### Installing
 
 Clone the repository: git clone https://github.com/markm101/WSJ-Aggregator cd WSJ-Aggregator
 
 Install Beautiful Soup and Requests: pip install beautifulsoup4 requests
+Install discord.py and google gemini: pip install google-genai py-cord
+Alternatively, discord.py can also be used for the project 
 
 ### Executing program
 
@@ -31,7 +34,8 @@ The generated out.txt would look something like this
 ```
 Global Markets Rally Amid Tech Surge    || 01/05/26 at 23:10 EST || Markets || https://wsj.com/articles/sample-link
 ```
-
+When generating a live feed to console the output will look the same
+![When generating a live feed to discord, the output would be an embed styled like so](example.png)
 ## License
 
 This project is licensed under the MIT License - see the LICENSE.md file for details
@@ -40,3 +44,4 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 
 * [WSJ](WSJ.com)
 * [MORSS](https://morss.it/)
+* [Py-Cord](https://pycord.dev/)

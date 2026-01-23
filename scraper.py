@@ -114,7 +114,7 @@ def discord_start(disc_token, gemini_token):
                     await ctx.send(embed=my_embed)
 
             called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
-            #await ctx.send(f'The refresh time will now be set to {called_time}')
+            await ctx.send(f'The refresh time will now be set to {called_time}')
 
             time.sleep(int(seconds))
 
