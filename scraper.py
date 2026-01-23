@@ -3,6 +3,8 @@ from article import Article
 import requests
 import datetime
 import time
+import discord
+from google import genai
 
 def news_list(curr, timezone, limit_date):
     '''
@@ -22,7 +24,7 @@ def news_list(curr, timezone, limit_date):
     #With each item found in curr (column), create a article object and store in the output variable
     #If the article's title is already in output, do not append it to output
     for item in soup.find_all('item'):
-        new_art = Article(item.find('title').text.strip(), item.find('pubDate').text, item.find('link').text, item.find('description'), column, timezone)
+        new_art = Article(item.find('title').text.strip(), item.find('pubDate').text, item.find('link').text, item.find('description').text, column, timezone)
         if limit_date != None:
             if new_art.date > limit_date:
                 if new_art not in output:
@@ -68,7 +70,76 @@ def new_news(seconds, timeZone):
             print('\n')
 
         called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
-        print(f'\nThe refresh time will now be set to {called_time}')
+        #print(f'\nThe refresh time will now be set to {called_time}')
 
         time.sleep(int(seconds))
+
+
+def discord_start(disc_token, gemini_token):
+    bot = discord.Bot()
+
+    @bot.event
+    async def on_ready():
+        print(f'We have logged in as {bot.user}')
+
+    @bot.slash_command()
+    async def start_feed(ctx, seconds):
+
+
+        timeZone  = datetime.timezone(datetime.timedelta(hours=-5), 'EST')
+        called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
+        
+        # sort curr_news by descending order (most recent article first)
+        
+        while True is True:  
+
+            headers = {"User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
+            worldnews = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWorldNews', headers=headers)
+            business = requests.get('https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness', headers=headers)
+            markets = requests.get('https://feeds.content.dowjones.io/public/rss/RSSMarketsMain', headers=headers)
+            tech = requests.get('https://feeds.content.dowjones.io/public/rss/RSSWSJD', headers=headers)
+            economy = requests.get('https://feeds.content.dowjones.io/public/rss/socialeconomyfeed', headers=headers)
+
+            curr_news = sorted(news_list(worldnews, timeZone, called_time) + news_list(business, timeZone, called_time) + news_list(markets, timeZone, called_time) + news_list(tech, timeZone, called_time) + news_list(economy, timeZone, called_time), reverse=True)
+
+            if curr_news == []:
+                await ctx.send(f'No new articles have been published between {called_time} and {datetime.datetime.now(datetime.UTC).astimezone(timeZone)}')
+            else:
+                await ctx.send('New articles found')
+                for x in curr_news:
+                    my_embed = discord.Embed(title = x.title, description = f'{x.desc} [Link]({x.link})' , timestamp = x.date, type = x.column, color=0xFF0000)
+                    if gemini_token is not None:
+                        my_embed.add_field(name = 'AI Grade', value = grade_article(gemini_token, x.title))
+                    #my_embed.add_field(name = 'Link', value = f'[Link]({x.link})', inline=False)
+                    await ctx.send(embed=my_embed)
+
+            called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
+            #await ctx.send(f'The refresh time will now be set to {called_time}')
+
+            time.sleep(int(seconds))
+
+    bot.run(f'{token}')
+
+
+def grade_article(token, article):
+    
+    #Place API key here
+    GEMINI_API_KEY = f'{token}'
+    client = genai.Client(api_key=GEMINI_API_KEY)
+        
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        contents= f"""
+                    Based on the following news article title, generate me a grade ranging from 1 through 5 based on the relevance of this topic to the greater financial market
+                        
+                    Important parameters: 
+                    -DO NOT include any notes about the topic in your response, only the grade in a single digit number  
+                    -Base your grades SOLELY on how this news would effect stocks, bonds, and other assets, not based on political climates 
+                    -Make sure to utilize the fact there are 5 possible grades(1, 2, 3, 4, or 5)
+
+                    "{article}"
+                    """
+        )
+
+    return(response.text)
 
