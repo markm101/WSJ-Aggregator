@@ -22,7 +22,7 @@ Alternatively, discord.py can also be used for the project
 ### Executing program
 
 Adjust limit date within main.py
-Run the mainscript to write the latest headlines to out.txt:
+Run the mainscript to write the latest headlines to output.txt:
 User selects the timezone and a limit date (blank if no limit date is needed)
 ```
 python main.py
@@ -30,7 +30,7 @@ python main.py
 
 ### Output Sample
 
-The generated out.txt would look something like this
+The generated output.txt would look something like this
 ```
 Global Markets Rally Amid Tech Surge    || 01/05/26 at 23:10 EST || Markets || https://wsj.com/articles/sample-link
 ```
@@ -41,7 +41,7 @@ When generating a live feed to discord, the output would be an embed styled like
 ![When generating a live feed to discord, the output would be an embed styled like so](example.png)
 ## License
 
-This project is licensed under the MIT License - see the LICENSE.md file for details
+This project is licensed under the MIT License - see the LICENSE file for details
 
 ## Acknowledgments
 
