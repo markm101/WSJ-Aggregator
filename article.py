@@ -33,7 +33,7 @@ class Article:
         self.timezone = timezone
 
     def __str__(self):
-        return f"{self.title: <100} || {self.date.strftime('%x')} at {self.date.strftime('%X')[:5]} {self.timezone} || {self.column} \n {self.link} \n"
+        return f"{self.title: <100} || {self.date.strftime('%x')} at {self.date.strftime('%H:%M')} {self.timezone} || {self.column} \n {self.link} \n"
 
     def __gt__(self, other):
         return self.date > other.date
