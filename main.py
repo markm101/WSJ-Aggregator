@@ -1,41 +1,18 @@
 import datetime
 
-import requests
-
 import scraper
 
 if __name__ == "__main__":
-    # Headers and requests getters must be available for news_list to recieve RSS feed
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36"
-    }
-    worldnews = requests.get(
-        "https://feeds.content.dowjones.io/public/rss/RSSWorldNews", headers=headers
-    )
-    business = requests.get(
-        "https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness", headers=headers
-    )
-    markets = requests.get(
-        "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain", headers=headers
-    )
-    tech = requests.get(
-        "https://feeds.content.dowjones.io/public/rss/RSSWSJD", headers=headers
-    )
-    economy = requests.get(
-        "https://feeds.content.dowjones.io/public/rss/socialeconomyfeed",
-        headers=headers,
-    )
-
     # Ask user for prefered timezone
-    timeZone = input("1) PST   2) CST   3) EST\n")
-    if timeZone == "1":
-        timeZone = datetime.timezone(datetime.timedelta(hours=-8), "PST")
-    elif timeZone == "2":
-        timeZone = datetime.timezone(datetime.timedelta(hours=-6), "CST")
-    elif timeZone == "3":
-        timeZone = datetime.timezone(datetime.timedelta(hours=-5), "EST")
+    time_zone = input("1) PST   2) CST   3) EST\n")
+    if time_zone == "1":
+        time_zone = datetime.timezone(datetime.timedelta(hours=-8), "PST")
+    elif time_zone == "2":
+        time_zone = datetime.timezone(datetime.timedelta(hours=-6), "CST")
+    elif time_zone == "3":
+        time_zone = datetime.timezone(datetime.timedelta(hours=-5), "EST")
     else:
-        timeZone = datetime.timezone.utc
+        time_zone = datetime.timezone.utc
 
     # Main Option
     master = input(
@@ -44,27 +21,28 @@ if __name__ == "__main__":
     if master == "1":
         date = input("Limit Date? (format 2026-01-04)\n")
         try:
-            date = datetime.datetime.fromisoformat(date).replace(tzinfo=timeZone)
-        except:
+            date = datetime.datetime.fromisoformat(date).replace(tzinfo=time_zone)
+        except ValueError:
             print("Not Limiting")
             date = None
 
-        i = 0
+        print("Fetching feeds...")
+        feeds_dict = scraper.fetch_all_feeds()
         names = ["World News", "Business", "Markets", "Tech", "Economy"]
-        feeds = [worldnews, business, markets, tech, economy]
+        feeds = list(feeds_dict.values())
 
         with open("output.txt", "w", encoding="utf-8") as file:
-            for x in feeds:
+            for i, feed in enumerate(feeds):
                 file.writelines(f"\n ----- {names[i]} ----- \n \n")
-                for y in scraper.news_list(x, timeZone, date):
-                    file.writelines(str(y) + "\n")
-                i += 1
+                for article in scraper.news_list(feed, time_zone, date):
+                    file.writelines(str(article) + "\n")
 
     elif master == "2":
-        scraper.new_news(input("Time in between checks (seconds)\n"), timeZone)
+        scraper.new_news(input("Time in between checks (seconds)\n"), time_zone)
 
     elif master == "3":
         scraper.discord_start(
             input("Enter Bot Token: \n"),
             input("Enter Gemini Token (Leave blank for none): \n"),
+            time_zone,
         )

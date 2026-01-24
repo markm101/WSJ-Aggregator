@@ -9,6 +9,40 @@ from google import genai
 from article import Article
 
 
+def fetch_all_feeds():
+    """
+    Fetches all RSS feeds and returns them as a dictionary.
+
+    :return: Dictionary with feed names as keys and response objects as values
+    """
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36"
+    }
+
+    feeds = {
+        "worldnews": requests.get(
+            "https://feeds.content.dowjones.io/public/rss/RSSWorldNews", headers=headers
+        ),
+        "business": requests.get(
+            "https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness",
+            headers=headers,
+        ),
+        "markets": requests.get(
+            "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain",
+            headers=headers,
+        ),
+        "tech": requests.get(
+            "https://feeds.content.dowjones.io/public/rss/RSSWSJD", headers=headers
+        ),
+        "economy": requests.get(
+            "https://feeds.content.dowjones.io/public/rss/socialeconomyfeed",
+            headers=headers,
+        ),
+    }
+
+    return feeds
+
+
 def news_list(curr, timezone, limit_date):
     """
     Returns a list of Article type variables describing the current articles present in the RSS feed of the requested column
@@ -35,7 +69,7 @@ def news_list(curr, timezone, limit_date):
             column,
             timezone,
         )
-        if limit_date != None:
+        if limit_date is not None:
             if new_art.date > limit_date:
                 if new_art not in output:
                     output.append(new_art)
@@ -48,68 +82,44 @@ def news_list(curr, timezone, limit_date):
     return output
 
 
-def new_news(seconds, timeZone):
+def new_news(seconds, time_zone):
     """
     Checks for new news stored in every RSS feed
     If new news is found, returns the new article to the console
 
     :param seconds: How often the function rechecks for new articles
-    :param timeZone: Requested timezone by the user
+    :param time_zone: Requested timezone by the user
     """
-    timeZone = datetime.timezone(datetime.timedelta(hours=-5), "EST")
-    called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
+    called_time = datetime.datetime.now(datetime.UTC).astimezone(time_zone)
 
     # sort curr_news by descending order (most recent article first)
 
-    while True is True:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36"
-        }
-        worldnews = requests.get(
-            "https://feeds.content.dowjones.io/public/rss/RSSWorldNews", headers=headers
-        )
-        business = requests.get(
-            "https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness",
-            headers=headers,
-        )
-        markets = requests.get(
-            "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain",
-            headers=headers,
-        )
-        tech = requests.get(
-            "https://feeds.content.dowjones.io/public/rss/RSSWSJD", headers=headers
-        )
-        economy = requests.get(
-            "https://feeds.content.dowjones.io/public/rss/socialeconomyfeed",
-            headers=headers,
-        )
+    while True:
+        feeds_dict = fetch_all_feeds()
 
-        curr_news = sorted(
-            news_list(worldnews, timeZone, called_time)
-            + news_list(business, timeZone, called_time)
-            + news_list(markets, timeZone, called_time)
-            + news_list(tech, timeZone, called_time)
-            + news_list(economy, timeZone, called_time),
-            reverse=True,
-        )
+        all_articles = []
+        for feed in feeds_dict.values():
+            all_articles.extend(news_list(feed, time_zone, called_time))
 
-        if curr_news == []:
+        curr_news = sorted(all_articles, reverse=True)
+
+        if not curr_news:
             print(
-                f" \n No new articles have been published between {called_time} and {datetime.datetime.now(datetime.UTC).astimezone(timeZone)}"
+                f" \n No new articles have been published between {called_time} and {datetime.datetime.now(datetime.UTC).astimezone(time_zone)}"
             )
         else:
             print("\nNew articles found")
-            for x in curr_news:
-                print(str(x))
+            for article in curr_news:
+                print(str(article))
             print("\n")
 
-        called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
+        called_time = datetime.datetime.now(datetime.UTC).astimezone(time_zone)
         # print(f'\nThe refresh time will now be set to {called_time}')
 
         time.sleep(int(seconds))
 
 
-def discord_start(disc_token, gemini_token):
+def discord_start(disc_token, gemini_token, time_zone):
     """
     Start the discord bot with live feed, same logic as new_news but prints to a discord chat
 
@@ -124,72 +134,47 @@ def discord_start(disc_token, gemini_token):
 
     @bot.slash_command()
     async def start_feed(ctx, seconds):
-        timeZone = datetime.timezone(datetime.timedelta(hours=-5), "EST")
-        called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
+        called_time = datetime.datetime.now(datetime.UTC).astimezone(time_zone)
 
         # sort curr_news by descending order (most recent article first)
 
-        while True is True:
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36"
-            }
-            worldnews = requests.get(
-                "https://feeds.content.dowjones.io/public/rss/RSSWorldNews",
-                headers=headers,
-            )
-            business = requests.get(
-                "https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness",
-                headers=headers,
-            )
-            markets = requests.get(
-                "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain",
-                headers=headers,
-            )
-            tech = requests.get(
-                "https://feeds.content.dowjones.io/public/rss/RSSWSJD", headers=headers
-            )
-            economy = requests.get(
-                "https://feeds.content.dowjones.io/public/rss/socialeconomyfeed",
-                headers=headers,
-            )
+        while True:
+            feeds_dict = fetch_all_feeds()
 
-            curr_news = sorted(
-                news_list(worldnews, timeZone, called_time)
-                + news_list(business, timeZone, called_time)
-                + news_list(markets, timeZone, called_time)
-                + news_list(tech, timeZone, called_time)
-                + news_list(economy, timeZone, called_time),
-                reverse=True,
-            )
+            all_articles = []
+            for feed in feeds_dict.values():
+                all_articles.extend(news_list(feed, time_zone, called_time))
 
-            if curr_news == []:
+            curr_news = sorted(all_articles, reverse=True)
+
+            if not curr_news:
                 await ctx.send(
-                    f"No new articles have been published between {called_time} and {datetime.datetime.now(datetime.UTC).astimezone(timeZone)}"
+                    f"No new articles have been published between {called_time} and {datetime.datetime.now(datetime.UTC).astimezone(time_zone)}"
                 )
             else:
                 await ctx.send("New articles found")
-                for x in curr_news:
+                for article in curr_news:
                     my_embed = discord.Embed(
-                        title=x.title,
-                        description=f"{x.desc} [Link]({x.link})",
-                        timestamp=x.date,
-                        type=x.column,
+                        title=article.title,
+                        description=f"{article.desc} [Link]({article.link})",
+                        timestamp=article.date,
+                        type=article.column,
                         color=0xFF0000,
                     )
                     if gemini_token is not None:
                         my_embed.add_field(
                             name="AI Grade",
-                            value=f"{grade_article(gemini_token, x.title)} out of 5",
+                            value=f"{grade_article(gemini_token, article.title)} out of 5",
                         )
-                    # my_embed.add_field(name = 'Link', value = f'[Link]({x.link})', inline=False)
+                    # my_embed.add_field(name = 'Link', value = f'[Link]({article.link})', inline=False)
                     await ctx.send(embed=my_embed)
 
-            called_time = datetime.datetime.now(datetime.UTC).astimezone(timeZone)
+            called_time = datetime.datetime.now(datetime.UTC).astimezone(time_zone)
             await ctx.send(f"The refresh time will now be set to {called_time}")
 
-            time.sleep(int(seconds))
+            await asyncio.sleep(int(seconds))
 
-    bot.run(f"{disc_token}")
+    bot.run(disc_token)
 
 
 def grade_article(token, article):
@@ -202,7 +187,7 @@ def grade_article(token, article):
     """
 
     # Place API key here
-    GEMINI_API_KEY = f"{token}"
+    GEMINI_API_KEY = token
     client = genai.Client(api_key=GEMINI_API_KEY)
 
     response = client.models.generate_content(
