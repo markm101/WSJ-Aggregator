@@ -8,14 +8,14 @@ A Wall Street Journal Aggregator that presents newly published news articles in 
 
 ### Dependencies
 
-This project requires BeautifulSoup4 for XML parsing and requests for fetching feeds.
+This project requires BeautifulSoup4 and lxml for XML parsing and requests for fetching feeds.
 While optional, discord.py and google gemini's libraries are also recommended if users would like to use the discord tool feature
 
 ### Installing
 
 Clone the repository: git clone https://github.com/markm101/WSJ-Aggregator cd WSJ-Aggregator
 
-Install Beautiful Soup and Requests: pip install beautifulsoup4 requests
+Install Beautiful Soup and Requests: pip install beautifulsoup4 requests lxml
 Install discord.py and google gemini: pip install google-genai py-cord
 Alternatively, discord.py can also be used for the project 
 

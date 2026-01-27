@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     # Main Option
     master = input(
-        "Select Mode: 1) Standard output.txt print 2) Console Print new articles published 3)Discord + AI Mode \n "
+        "Select Mode: 1) Standard output.txt print 2) Console Print new articles published 3)Discord + AI Mode \n"
     )
     if master == "1":
         date = input("Limit Date? (format 2026-01-04)\n")
