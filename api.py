@@ -17,7 +17,7 @@ app.add_middleware(
 )
 
 tz = datetime.timezone(datetime.timedelta(hours=-5), "EST")
-last_checked = datetime.datetime.now(datetime.UTC)
+last_checked = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=6)
 
 @app.get("/api/articles")
 def get_articles():
@@ -31,6 +31,8 @@ def get_articles():
 
     last_checked = datetime.datetime.now(datetime.UTC)
 
+    all_articles = sorted(all_articles, reverse=True)
+
     result = []
     for a in all_articles:
         result.append({
@@ -42,3 +44,7 @@ def get_articles():
         })
 
     return result
+
+
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

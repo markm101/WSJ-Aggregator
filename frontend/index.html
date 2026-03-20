@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSJ Feed</title>
+    <style>
+        :root[data-theme="light"] {
+            --bg: #ffffff;
+            --bg-secondary: hsl(0, 0%, 96%);
+            --text: hsl(0, 0%, 10%);
+            --text-muted: hsl(0, 0%, 45%);
+            --border: hsl(0, 0%, 88%);
+            --accent: hsl(201, 17%, 45%);
+            --btn-active-bg: hsl(0, 0%, 10%);
+            --btn-active-text: #ffffff;
+            --btn-inactive-bg: #ffffff;
+            --btn-inactive-text: hsl(0, 0%, 10%);
+        }
+
+        :root[data-theme="dark"] {
+            --bg: hsl(0, 0%, 13%);
+            --bg-secondary: hsl(0, 0%, 18%);
+            --text: hsl(0, 0%, 82%);
+            --text-muted: hsl(0, 0%, 50%);
+            --border: hsl(0, 0%, 25%);
+            --accent: hsl(201, 17%, 60%);
+            --btn-active-bg: hsl(0, 0%, 82%);
+            --btn-active-text: hsl(0, 0%, 13%);
+            --btn-inactive-bg: hsl(0, 0%, 13%);
+            --btn-inactive-text: hsl(0, 0%, 82%);
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Ubuntu, sans-serif;
+            max-width: 760px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: var(--bg-secondary);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        #theme-toggle {
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: var(--bg-secondary);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        #filters {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .filter-btn {
+            font-size: 0.78rem;
+            padding: 3px 12px;
+            border: 1px solid var(--border);
+            background: var(--btn-active-bg);
+            color: var(--btn-active-text);
+            cursor: pointer;
+            border-radius: 14px;
+        }
+
+        .filter-btn.off {
+            background: var(--btn-inactive-bg);
+            color: var(--btn-inactive-text);
+        }
+
+        #status {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-bottom: 12px;
+        }
+
+        .article {
+            border-bottom: 1px solid var(--border);
+            padding: 14px 0;
+        }
+
+        .article a {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .article a:hover {
+            color: var(--accent);
+        }
+
+        .article .meta {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin: 4px 0 8px 0;
+        }
+
+        .article p {
+            margin: 0;
+            font-size: 0.92rem;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        #no-articles {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.92rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>WSJ Live Feed</h1>
+        <div class="header-controls">
+            <select id="timezone">
+                <option value="-5">EST</option>
+                <option value="-6">CST</option>
+                <option value="-8">PST</option>
+            </select>
+            <button id="theme-toggle">Dark</button>
+        </div>
+    </header>
+
+    <div id="filters">
+        <button class="filter-btn" data-category="Markets">Markets</button>
+        <button class="filter-btn" data-category="Business">Business</button>
+        <button class="filter-btn" data-category="Economy">Economy</button>
+        <button class="filter-btn off" data-category="Tech">Tech</button>
+        <button class="filter-btn off" data-category="World News">World News</button>
+    </div>
+
+    <div id="status">Fetching articles...</div>
+    <div id="feed"></div>
+
+    <script>
+        const POLL_INTERVAL = 10 * 60 * 1000;
+        let articles = JSON.parse(localStorage.getItem("wsj_articles") || "[]");
+        render();
+
+        // --- Theme ---
+        const toggle = document.getElementById("theme-toggle");
+        toggle.addEventListener("click", () => {
+            const html = document.documentElement;
+            const isDark = html.getAttribute("data-theme") === "dark";
+            html.setAttribute("data-theme", isDark ? "light" : "dark");
+            toggle.textContent = isDark ? "Dark" : "Light";
+        });
+
+        // --- Timezone ---
+        function getOffset() {
+            return parseInt(document.getElementById("timezone").value);
+        }
+
+        function getTimezoneName() {
+            const map = { "-5": "EST", "-6": "CST", "-8": "PST" };
+            return map[getOffset()] || "EST";
+        }
+
+        function formatDate(isoString) {
+            const offset = getOffset();
+            const utc = new Date(isoString);
+            const adjusted = new Date(utc.getTime() + offset * 60 * 60 * 1000);
+            return adjusted.toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+                timeZone: "UTC",
+            });
+        }
+
+        // --- Filters ---
+        function getActiveCategories() {
+            return [...document.querySelectorAll(".filter-btn:not(.off)")]
+                .map(btn => btn.dataset.category);
+        }
+
+        document.querySelectorAll(".filter-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                btn.classList.toggle("off");
+                render();
+            });
+        });
+
+        // --- Render ---
+        function render() {
+            const feed = document.getElementById("feed");
+            const active = getActiveCategories();
+            const filtered = articles.filter(a =>
+                active.some(cat => a.category.includes(cat))
+            );
+
+            if (filtered.length === 0) {
+                feed.innerHTML = '<p id="no-articles">No new articles yet. Check back soon.</p>';
+                return;
+            }
+
+            feed.innerHTML = filtered.map(a => `
+                <div class="article">
+                    <a href="${a.link}" target="_blank">${a.title}</a>
+                    <div class="meta">${a.category} &bull; ${formatDate(a.date)} ${getTimezoneName()}</div>
+                    <p>${a.description}</p>
+                </div>
+            `).join("");
+        }
+
+        // --- Fetch ---
+        async function fetchArticles() {
+            document.getElementById("status").textContent = "Fetching articles...";
+            try {
+                const res = await fetch("/api/articles");
+                const newArticles = await res.json();
+                articles = [...newArticles, ...articles];
+                localStorage.setItem("wsj_articles", JSON.stringify(articles));
+                const now = new Date().toLocaleTimeString();
+                document.getElementById("status").textContent = `Last updated: ${now}`;
+            } catch (e) {
+                document.getElementById("status").textContent = "Failed to fetch articles.";
+            }
+            render();
+        }
+
+        document.getElementById("timezone").addEventListener("change", render);
+
+        fetchArticles();
+        setInterval(fetchArticles, POLL_INTERVAL);
+    </script>
+</body>
+</html>
