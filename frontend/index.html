@@ -254,14 +254,11 @@
             document.getElementById("status").textContent = "Fetching articles...";
             try {
                 const res = await fetch("/api/articles");
-                const newArticles = await res.json();
-                articles = [...newArticles, ...articles];
+                const data = await res.json();
+                articles = data.articles;
                 localStorage.setItem("wsj_articles", JSON.stringify(articles));
-                if (newArticles.length > 0) {
-                    const latest = new Date(newArticles[0].date).toLocaleTimeString();
-                    document.getElementById("status").textContent = `Last updated: ${latest}`;
-                } else if (articles.length > 0) {
-                    const latest = new Date(articles[0].date).toLocaleTimeString();
+                if (data.last_fetched) {
+                    const latest = new Date(data.last_fetched).toLocaleTimeString();
                     document.getElementById("status").textContent = `Last updated: ${latest}`;
                 }
             } catch (e) {

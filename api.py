@@ -19,12 +19,13 @@ app.add_middleware(
 
 tz = datetime.timezone(datetime.timedelta(hours=-5), "EST")
 article_cache = []
+last_fetched = None
 
 POLL_INTERVAL = 600  # 10 minutes
 
 
 def fetch_and_cache():
-    global article_cache
+    global article_cache, last_fetched
 
     cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=6)
     feeds_dict = scraper.fetch_all_feeds()
@@ -45,6 +46,7 @@ def fetch_and_cache():
         }
         for a in all_articles
     ]
+    last_fetched = datetime.datetime.now(tz).isoformat()
 
 
 async def poll_feeds():
@@ -60,7 +62,7 @@ async def startup():
 
 @app.get("/api/articles")
 def get_articles():
-    return article_cache
+    return {"articles": article_cache, "last_fetched": last_fetched}
 
 
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
