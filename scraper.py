@@ -2,9 +2,17 @@ import datetime
 import time
 
 import bs4
-import discord
 import requests
-from google import genai
+
+try:
+    import discord
+except ImportError:
+    discord = None
+
+try:
+    from google import genai
+except ImportError:
+    genai = None
 
 from article import Article
 

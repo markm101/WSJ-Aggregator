@@ -1,0 +1,10 @@
+# Core (required for web server)
+fastapi
+uvicorn
+requests
+beautifulsoup4
+lxml
+
+# Optional (required for Discord bot and AI grading only)
+# discord.py
+# google-genai
