@@ -1,5 +1,6 @@
 import datetime
 import asyncio
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,15 +8,6 @@ from fastapi.staticfiles import StaticFiles
 
 import scraper
 
-
-app = FastAPI(title="WSJ Aggregator")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["GET"],
-    allow_headers=["*"],
-)
 
 tz = datetime.timezone(datetime.timedelta(hours=-5), "EST")
 article_cache = []
@@ -28,25 +20,32 @@ def fetch_and_cache():
     global article_cache, last_fetched
 
     cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=6)
-    feeds_dict = scraper.fetch_all_feeds()
 
-    all_articles = []
-    for feed in feeds_dict.values():
-        all_articles.extend(scraper.news_list(feed, tz, cutoff))
+    try:
+        feeds_dict = scraper.fetch_all_feeds()
 
-    all_articles = sorted(all_articles, reverse=True)
+        all_articles = []
+        for feed in feeds_dict.values():
+            try:
+                all_articles.extend(scraper.news_list(feed, tz, cutoff))
+            except Exception as e:
+                print(f"Failed to parse feed: {e}")
 
-    article_cache = [
-        {
-            "title": a.title,
-            "date": a.date.isoformat(),
-            "link": a.link,
-            "description": a.desc,
-            "category": a.column,
-        }
-        for a in all_articles
-    ]
-    last_fetched = datetime.datetime.now(tz).isoformat()
+        all_articles = sorted(all_articles, reverse=True)
+
+        article_cache = [
+            {
+                "title": a.title,
+                "date": a.date.isoformat(),
+                "link": a.link,
+                "description": a.desc,
+                "category": a.column,
+            }
+            for a in all_articles
+        ]
+        last_fetched = datetime.datetime.now(tz).isoformat()
+    except Exception as e:
+        print(f"Failed to fetch feeds: {e}")
 
 
 async def poll_feeds():
@@ -55,9 +54,20 @@ async def poll_feeds():
         await asyncio.sleep(POLL_INTERVAL)
 
 
-@app.on_event("startup")
-async def startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     asyncio.create_task(poll_feeds())
+    yield
+
+
+app = FastAPI(title="WSJ Aggregator", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/api/articles")

@@ -256,7 +256,7 @@
                 const res = await fetch("/api/articles");
                 const data = await res.json();
                 articles = data.articles;
-                localStorage.setItem("wsj_articles", JSON.stringify(articles));
+                localStorage.setItem("wsj_articles", JSON.stringify(articles.slice(0, 200)));
                 if (data.last_fetched) {
                     const latest = new Date(data.last_fetched).toLocaleTimeString();
                     document.getElementById("status").textContent = `Last updated: ${latest}`;

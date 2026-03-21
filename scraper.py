@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import time
 
@@ -27,26 +28,20 @@ def fetch_all_feeds():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36"
     }
 
-    feeds = {
-        "worldnews": requests.get(
-            "https://feeds.content.dowjones.io/public/rss/RSSWorldNews", headers=headers
-        ),
-        "business": requests.get(
-            "https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness",
-            headers=headers,
-        ),
-        "markets": requests.get(
-            "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain",
-            headers=headers,
-        ),
-        "tech": requests.get(
-            "https://feeds.content.dowjones.io/public/rss/RSSWSJD", headers=headers
-        ),
-        "economy": requests.get(
-            "https://feeds.content.dowjones.io/public/rss/socialeconomyfeed",
-            headers=headers,
-        ),
+    feed_urls = {
+        "worldnews": "https://feeds.content.dowjones.io/public/rss/RSSWorldNews",
+        "business": "https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness",
+        "markets": "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain",
+        "tech": "https://feeds.content.dowjones.io/public/rss/RSSWSJD",
+        "economy": "https://feeds.content.dowjones.io/public/rss/socialeconomyfeed",
     }
+
+    feeds = {}
+    for name, url in feed_urls.items():
+        try:
+            feeds[name] = requests.get(url, headers=headers, timeout=10)
+        except requests.RequestException as e:
+            print(f"Failed to fetch {name} feed: {e}")
 
     return feeds
 
@@ -98,9 +93,7 @@ def new_news(seconds, time_zone):
     :param seconds: How often the function rechecks for new articles
     :param time_zone: Requested timezone by the user
     """
-    called_time = datetime.datetime.now(datetime.UTC).astimezone(time_zone)
-
-    # sort curr_news by descending order (most recent article first)
+    called_time = datetime.datetime.now(datetime.timezone.utc).astimezone(time_zone)
 
     while True:
         feeds_dict = fetch_all_feeds()
@@ -113,7 +106,7 @@ def new_news(seconds, time_zone):
 
         if not curr_news:
             print(
-                f" \n No new articles have been published between {called_time} and {datetime.datetime.now(datetime.UTC).astimezone(time_zone)}"
+                f" \n No new articles have been published between {called_time} and {datetime.datetime.now(datetime.timezone.utc).astimezone(time_zone)}"
             )
         else:
             print("\nNew articles found")
@@ -121,8 +114,7 @@ def new_news(seconds, time_zone):
                 print(str(article))
             print("\n")
 
-        called_time = datetime.datetime.now(datetime.UTC).astimezone(time_zone)
-        # print(f'\nThe refresh time will now be set to {called_time}')
+        called_time = datetime.datetime.now(datetime.timezone.utc).astimezone(time_zone)
 
         time.sleep(int(seconds))
 
@@ -142,9 +134,7 @@ def discord_start(disc_token, gemini_token, time_zone):
 
     @bot.slash_command()
     async def start_feed(ctx, seconds):
-        called_time = datetime.datetime.now(datetime.UTC).astimezone(time_zone)
-
-        # sort curr_news by descending order (most recent article first)
+        called_time = datetime.datetime.now(datetime.timezone.utc).astimezone(time_zone)
 
         while True:
             feeds_dict = fetch_all_feeds()
@@ -157,7 +147,7 @@ def discord_start(disc_token, gemini_token, time_zone):
 
             if not curr_news:
                 await ctx.send(
-                    f"No new articles have been published between {called_time} and {datetime.datetime.now(datetime.UTC).astimezone(time_zone)}"
+                    f"No new articles have been published between {called_time} and {datetime.datetime.now(datetime.timezone.utc).astimezone(time_zone)}"
                 )
             else:
                 await ctx.send("New articles found")
@@ -174,10 +164,9 @@ def discord_start(disc_token, gemini_token, time_zone):
                             name="AI Grade",
                             value=f"{grade_article(gemini_token, article.title)} out of 5",
                         )
-                    # my_embed.add_field(name = 'Link', value = f'[Link]({article.link})', inline=False)
                     await ctx.send(embed=my_embed)
 
-            called_time = datetime.datetime.now(datetime.UTC).astimezone(time_zone)
+            called_time = datetime.datetime.now(datetime.timezone.utc).astimezone(time_zone)
             await ctx.send(f"The refresh time will now be set to {called_time}")
 
             await asyncio.sleep(int(seconds))
@@ -193,10 +182,7 @@ def grade_article(token, article):
     :param token: Gemini token
     :param article: Article headline
     """
-
-    # Place API key here
-    GEMINI_API_KEY = token
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=token)
 
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
