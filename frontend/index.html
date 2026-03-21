@@ -257,8 +257,13 @@
                 const newArticles = await res.json();
                 articles = [...newArticles, ...articles];
                 localStorage.setItem("wsj_articles", JSON.stringify(articles));
-                const now = new Date().toLocaleTimeString();
-                document.getElementById("status").textContent = `Last updated: ${now}`;
+                if (newArticles.length > 0) {
+                    const latest = new Date(newArticles[0].date).toLocaleTimeString();
+                    document.getElementById("status").textContent = `Last updated: ${latest}`;
+                } else if (articles.length > 0) {
+                    const latest = new Date(articles[0].date).toLocaleTimeString();
+                    document.getElementById("status").textContent = `Last updated: ${latest}`;
+                }
             } catch (e) {
                 document.getElementById("status").textContent = "Failed to fetch articles.";
             }
