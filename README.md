@@ -1,50 +1,55 @@
-# Wall Street Journal News Aggregate
+# Wall Street Journal News Aggregator
 
-## Description
+A Wall Street Journal news aggregator that fetches and displays newly published articles from WSJ RSS feeds. Supports a live web interface, console output, and Discord bot integration with optional AI grading.
 
-A Wall Street Journal Aggregator that presents newly published news articles in an easily accessible way using the Wall Street Journal RSS feed
+## Web Interface
+
+The primary way to use this project is via the web interface, which displays articles in real time with category filters, timezone selection, and dark/light mode.
+
+![WSJ Live Feed](example.png)
+
+The web server fetches all feeds every 10 minutes and caches the results. The frontend polls the API and updates automatically.
 
 ## Getting Started
 
 ### Dependencies
 
-This project requires BeautifulSoup4 and lxml for XML parsing and requests for fetching feeds.
-While optional, discord.py and google gemini's libraries are also recommended if users would like to use the discord tool feature
+Install core dependencies (required for the web server):
 
-### Installing
+```
+pip install -r requirements.txt
+```
 
-Clone the repository: git clone https://github.com/markm101/WSJ-Aggregator cd WSJ-Aggregator
+Optional dependencies for Discord bot and AI grading:
 
-Install Beautiful Soup and Requests: pip install beautifulsoup4 requests lxml
-Install discord.py and google gemini: pip install google-genai py-cord
-Alternatively, discord.py can also be used for the project 
+```
+pip install py-cord google-genai
+```
 
-### Executing program
+### Running the Web Server
 
-Adjust limit date within main.py
-Run the mainscript to write the latest headlines to output.txt:
-User selects the timezone and a limit date (blank if no limit date is needed)
+```
+uvicorn api:app
+```
+
+The frontend will be served at `http://localhost:8000`.
+
+### Running the CLI
+
 ```
 python main.py
 ```
 
-### Output Sample
+Select from the following modes:
+- Write latest headlines to `output.txt`
+- Console live feed (polls at a user-specified interval)
+- Discord bot with optional Gemini AI article grading
 
-The generated output.txt would look something like this
-```
-Global Markets Rally Amid Tech Surge    || 01/05/26 at 23:10 EST || Markets || https://wsj.com/articles/sample-link
-```
-When generating a live feed to console the output will look the same
-
-When generating a live feed to discord, the output would be an embed styled like so
-
-![When generating a live feed to discord, the output would be an embed styled like so](example.png)
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
-* [WSJ](WSJ.com)
-* [MORSS](https://morss.it/)
+* [WSJ](https://wsj.com)
 * [Py-Cord](https://pycord.dev/)
