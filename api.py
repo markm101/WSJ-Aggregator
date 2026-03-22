@@ -19,7 +19,9 @@ POLL_INTERVAL = 600  # 10 minutes
 def fetch_and_cache():
     global article_cache, last_fetched
 
-    cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=6)
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cutoff = now - datetime.timedelta(hours=6)
+    expiry = now - datetime.timedelta(days=3)
 
     try:
         feeds_dict = scraper.fetch_all_feeds()
@@ -31,18 +33,26 @@ def fetch_and_cache():
             except Exception as e:
                 print(f"Failed to parse feed: {e}")
 
-        all_articles = sorted(all_articles, reverse=True)
+        # Merge new articles into cache, avoiding duplicates by title
+        existing_titles = {a["title"] for a in article_cache}
+        for a in all_articles:
+            if a.title not in existing_titles:
+                article_cache.append({
+                    "title": a.title,
+                    "date": a.date.isoformat(),
+                    "link": a.link,
+                    "description": a.desc,
+                    "category": a.column,
+                })
+                existing_titles.add(a.title)
 
+        # Remove articles older than 3 days
         article_cache = [
-            {
-                "title": a.title,
-                "date": a.date.isoformat(),
-                "link": a.link,
-                "description": a.desc,
-                "category": a.column,
-            }
-            for a in all_articles
+            a for a in article_cache
+            if datetime.datetime.fromisoformat(a["date"]) > expiry
         ]
+
+        article_cache = sorted(article_cache, key=lambda a: a["date"], reverse=True)
         last_fetched = datetime.datetime.now(tz).isoformat()
     except Exception as e:
         print(f"Failed to fetch feeds: {e}")
