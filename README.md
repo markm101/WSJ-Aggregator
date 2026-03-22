@@ -6,8 +6,6 @@ A Wall Street Journal news aggregator that fetches and displays newly published 
 
 The primary way to use this project is via the web interface, which displays articles in real time with category filters, timezone selection, and dark/light mode.
 
-![WSJ Live Feed](example.png)
-
 The web server fetches all feeds every 10 minutes and caches the results. The frontend polls the API and updates automatically.
 
 ## Getting Started
