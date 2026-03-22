@@ -13,14 +13,14 @@ tz = datetime.timezone(datetime.timedelta(hours=-5), "EST")
 article_cache = []
 last_fetched = None
 
-POLL_INTERVAL = 600  # 10 minutes
+POLL_INTERVAL = 900  # 15 minutes
 
 
 def fetch_and_cache():
     global article_cache, last_fetched
 
     now = datetime.datetime.now(datetime.timezone.utc)
-    cutoff = now - datetime.timedelta(hours=6)
+    cutoff = datetime.datetime.fromisoformat(last_fetched) if last_fetched else now - datetime.timedelta(seconds=POLL_INTERVAL)
     expiry = now - datetime.timedelta(days=3)
 
     try:
