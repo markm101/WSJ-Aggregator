@@ -179,6 +179,7 @@
     <script>
         const POLL_INTERVAL = 15 * 60 * 1000;
         let articles = JSON.parse(localStorage.getItem("wsj_articles") || "[]");
+        let lastFetchedISO = null;
         render();
 
         // --- Theme ---
@@ -258,8 +259,8 @@
                 articles = data.articles;
                 localStorage.setItem("wsj_articles", JSON.stringify(articles.slice(0, 200)));
                 if (data.last_fetched) {
-                    const latest = new Date(data.last_fetched).toLocaleTimeString();
-                    document.getElementById("status").textContent = `Last updated: ${latest}`;
+                    lastFetchedISO = data.last_fetched;
+                    updateStatus();
                 }
             } catch (e) {
                 document.getElementById("status").textContent = "Failed to fetch articles.";
@@ -267,7 +268,13 @@
             render();
         }
 
-        document.getElementById("timezone").addEventListener("change", render);
+        function updateStatus() {
+            if (lastFetchedISO) {
+                document.getElementById("status").textContent = `Last updated: ${formatDate(lastFetchedISO)} ${getTimezoneName()}`;
+            }
+        }
+
+        document.getElementById("timezone").addEventListener("change", () => { render(); updateStatus(); });
 
         fetchArticles();
         setInterval(fetchArticles, POLL_INTERVAL);
