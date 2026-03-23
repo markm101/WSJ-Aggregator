@@ -1,6 +1,7 @@
 import datetime
 import asyncio
 from contextlib import asynccontextmanager
+from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 import scraper
 
 
-tz = datetime.timezone(datetime.timedelta(hours=-5), "EST")
+tz = ZoneInfo("America/New_York")
 article_cache = []
 last_fetched = None
 
@@ -60,7 +61,10 @@ def fetch_and_cache():
 
 async def poll_feeds():
     while True:
-        fetch_and_cache()
+        try:
+            fetch_and_cache()
+        except Exception as e:
+            print(f"Polling error: {e}")
         await asyncio.sleep(POLL_INTERVAL)
 
 
