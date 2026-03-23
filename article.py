@@ -4,7 +4,7 @@ import datetime
 class Article:
     def __init__(self, title, date, link, desc, column, timezone):
         """
-        Docstring for __init__
+        Creates an Article from WSJ RSS feed data, parsing the date and converting to the requested timezone.
 
         :param title: Title of the news article
         :param date: Date Published (string)
@@ -13,8 +13,6 @@ class Article:
         :param column: The column // Type of article
         :param timezone: The user requested timezone in terms of output / storage
         """
-
-        # Set article class variables
         self.title = title
         self.column = column
         self.link = link
@@ -30,10 +28,9 @@ class Article:
             .replace(tzinfo=datetime.timezone.utc)
             .astimezone(timezone)
         )
-        self.timezone = timezone
 
     def __str__(self):
-        return f"{self.title: <100} || {self.date.strftime('%x')} at {self.date.strftime('%H:%M')} {self.timezone} || {self.column} \n {self.link} \n"
+        return f"{self.title: <100} || {self.date.strftime('%x')} at {self.date.strftime('%H:%M')} {self.date.tzname()} || {self.column} \n {self.link} \n"
 
     def __gt__(self, other):
         return self.date > other.date

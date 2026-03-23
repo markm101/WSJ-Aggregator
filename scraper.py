@@ -159,7 +159,7 @@ def discord_start(disc_token, gemini_token, time_zone):
                         type=article.column,
                         color=0xFF0000,
                     )
-                    if gemini_token is not None:
+                    if gemini_token:
                         my_embed.add_field(
                             name="AI Grade",
                             value=f"{grade_article(gemini_token, article.title)} out of 5",

@@ -3,7 +3,7 @@ import datetime
 import scraper
 
 if __name__ == "__main__":
-    # Ask user for prefered timezone
+    # Ask user for preferred timezone
     time_zone = input("1) PST   2) CST   3) EST\n")
     if time_zone == "1":
         time_zone = datetime.timezone(datetime.timedelta(hours=-8), "PST")

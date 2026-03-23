@@ -20,7 +20,7 @@ def fetch_and_cache():
     global article_cache, last_fetched
 
     now = datetime.datetime.now(datetime.timezone.utc)
-    cutoff = datetime.datetime.fromisoformat(last_fetched) if last_fetched else now - datetime.timedelta(seconds=POLL_INTERVAL)
+    cutoff = datetime.datetime.fromisoformat(last_fetched) if last_fetched else now - datetime.timedelta(days=3)
     expiry = now - datetime.timedelta(days=3)
 
     try:
