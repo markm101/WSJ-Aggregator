@@ -157,9 +157,9 @@
         <h1>WSJ Live Feed</h1>
         <div class="header-controls">
             <select id="timezone">
-                <option value="-5">EST</option>
-                <option value="-6">CST</option>
-                <option value="-8">PST</option>
+                <option value="America/New_York">Eastern</option>
+                <option value="America/Chicago">Central</option>
+                <option value="America/Los_Angeles">Pacific</option>
             </select>
             <button id="theme-toggle">Light</button>
         </div>
@@ -192,26 +192,19 @@
         });
 
         // --- Timezone ---
-        function getOffset() {
-            return parseInt(document.getElementById("timezone").value);
-        }
-
-        function getTimezoneName() {
-            const map = { "-5": "EST", "-6": "CST", "-8": "PST" };
-            return map[getOffset()] || "EST";
+        function getTimezone() {
+            return document.getElementById("timezone").value;
         }
 
         function formatDate(isoString) {
-            const offset = getOffset();
-            const utc = new Date(isoString);
-            const adjusted = new Date(utc.getTime() + offset * 60 * 60 * 1000);
-            return adjusted.toLocaleString("en-US", {
+            return new Date(isoString).toLocaleString("en-US", {
                 month: "short",
                 day: "numeric",
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
-                timeZone: "UTC",
+                timeZoneName: "short",
+                timeZone: getTimezone(),
             });
         }
 
@@ -244,7 +237,7 @@
             feed.innerHTML = filtered.map(a => `
                 <div class="article">
                     <a href="${a.link}" target="_blank">${a.title}</a>
-                    <div class="meta">${a.category} &bull; ${formatDate(a.date)} ${getTimezoneName()}</div>
+                    <div class="meta">${a.category} &bull; ${formatDate(a.date)} </div>
                     <p>${a.description}</p>
                 </div>
             `).join("");
@@ -270,7 +263,7 @@
 
         function updateStatus() {
             if (lastFetchedISO) {
-                document.getElementById("status").textContent = `Last updated: ${formatDate(lastFetchedISO)} ${getTimezoneName()}`;
+                document.getElementById("status").textContent = `Last updated: ${formatDate(lastFetchedISO)} `;
             }
         }
 
