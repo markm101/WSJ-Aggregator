@@ -2,10 +2,11 @@ import datetime
 
 
 class Article:
-    def __init__(self, title, date, link, desc, column, timezone):
+    def __init__(self, guid, title, date, link, desc, column, timezone):
         """
         Creates an Article from WSJ RSS feed data, parsing the date and converting to the requested timezone.
 
+        :param guid: Permanent ID of the article, the same in every feed that lists it
         :param title: Title of the news article
         :param date: Date Published (string)
         :param link: Link to the article (string)
@@ -13,6 +14,7 @@ class Article:
         :param column: The column // Type of article
         :param timezone: The user requested timezone in terms of output / storage
         """
+        self.guid = guid
         self.title = title
         self.column = column
         self.link = link
@@ -39,7 +41,7 @@ class Article:
         return self.date < other.date
 
     def __eq__(self, other):
-        return self.title == other.title
+        return self.guid == other.guid
 
     def __ne__(self, other):
-        return self.title != other.title
+        return self.guid != other.guid

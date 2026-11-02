@@ -20,36 +20,38 @@ POLL_INTERVAL = 900  # 15 minutes
 def fetch_and_cache():
     global article_cache, last_fetched
 
-    now = datetime.datetime.now(datetime.timezone.utc)
-    cutoff = datetime.datetime.fromisoformat(last_fetched) if last_fetched else now - datetime.timedelta(days=3)
-    expiry = now - datetime.timedelta(days=3)
+    expiry = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=3)
 
     try:
-        feeds_dict = scraper.fetch_all_feeds()
+        # Every poll reads the full 3 days, so a failed poll can't cost any articles
+        parsed = scraper.parse_feeds(scraper.fetch_all_feeds(), tz, expiry)
 
-        all_articles = []
-        for feed in feeds_dict.values():
-            try:
-                all_articles.extend(scraper.news_list(feed, tz, cutoff))
-            except Exception as e:
-                print(f"Failed to parse feed: {e}")
+        if not parsed:
+            print("No feeds available, keeping cached articles")
+            return
 
-        # Merge new articles into cache, avoiding duplicates by title
-        existing_titles = {a["title"] for a in article_cache}
-        for a in all_articles:
-            if a.title not in existing_titles:
-                article_cache.append({
-                    "title": a.title,
-                    "date": a.date.isoformat(),
-                    "link": a.link,
-                    "description": a.desc,
-                    "category": a.column,
-                })
-                existing_titles.add(a.title)
+        # Merge into copies, so requests never read an entry mid-update
+        merged = {a["guid"]: {**a} for a in article_cache}
+        for articles in parsed.values():
+            for a in articles:
+                entry = merged.setdefault(a.guid, {"guid": a.guid, "date": "", "category": ""})
+
+                # A later date means WSJ updated the article, so show the new version
+                if a.date.isoformat() > entry["date"]:
+                    entry.update(
+                        title=a.title,
+                        date=a.date.isoformat(),
+                        link=a.link,
+                        description=a.desc,
+                    )
+
+                # Stays one string so open tabs and saved browser data keep working
+                if a.column not in entry["category"]:
+                    entry["category"] = f"{entry['category']}, {a.column}".removeprefix(", ")
 
         # Remove articles older than 3 days
         article_cache = [
-            a for a in article_cache
+            a for a in merged.values()
             if datetime.datetime.fromisoformat(a["date"]) > expiry
         ]
 
@@ -61,15 +63,17 @@ def fetch_and_cache():
 
 async def poll_feeds():
     while True:
+        await asyncio.sleep(POLL_INTERVAL)
         try:
-            fetch_and_cache()
+            await asyncio.to_thread(fetch_and_cache)
         except Exception as e:
             print(f"Polling error: {e}")
-        await asyncio.sleep(POLL_INTERVAL)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Later polls run in the background, but the first one has to finish before pages can load
+    await asyncio.to_thread(fetch_and_cache)
     asyncio.create_task(poll_feeds())
     yield
 

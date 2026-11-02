@@ -1,16 +1,17 @@
 import datetime
+from zoneinfo import ZoneInfo
 
 import scraper
 
 if __name__ == "__main__":
     # Ask user for preferred timezone
-    time_zone = input("1) PST   2) CST   3) EST\n")
+    time_zone = input("1) Pacific   2) Central   3) Eastern\n")
     if time_zone == "1":
-        time_zone = datetime.timezone(datetime.timedelta(hours=-8), "PST")
+        time_zone = ZoneInfo("America/Los_Angeles")
     elif time_zone == "2":
-        time_zone = datetime.timezone(datetime.timedelta(hours=-6), "CST")
+        time_zone = ZoneInfo("America/Chicago")
     elif time_zone == "3":
-        time_zone = datetime.timezone(datetime.timedelta(hours=-5), "EST")
+        time_zone = ZoneInfo("America/New_York")
     else:
         time_zone = datetime.timezone.utc
 
@@ -28,13 +29,18 @@ if __name__ == "__main__":
 
         print("Fetching feeds...")
         feeds_dict = scraper.fetch_all_feeds()
-        names = ["World News", "Business", "Markets", "Tech", "Economy"]
-        feeds = list(feeds_dict.values())
+        names = {
+            "worldnews": "World News",
+            "business": "Business",
+            "markets": "Markets",
+            "tech": "Tech",
+            "economy": "Economy",
+        }
 
         with open("output.txt", "w", encoding="utf-8") as file:
-            for i, feed in enumerate(feeds):
-                file.writelines(f"\n ----- {names[i]} ----- \n \n")
-                for article in scraper.news_list(feed, time_zone, date):
+            for name, articles in scraper.parse_feeds(feeds_dict, time_zone, date).items():
+                file.writelines(f"\n ----- {names[name]} ----- \n \n")
+                for article in articles:
                     file.writelines(str(article) + "\n")
 
     elif master == "2":
