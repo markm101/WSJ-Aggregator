@@ -53,7 +53,7 @@ def news_list(curr, timezone, limit_date):
     :note: If limit_date is not requested, it is passed as NONE, returning the entire content of the JSON
 
     :param curr: A response object of a specific column, giving the JSON data of the feed later converted to XML
-    :param timezone: Requested timezone object by the user ( PST, EST or CST )
+    :param timezone: Requested timezone object by the user ( Pacific, Central or Eastern )
     :param limit_date: A limit date requested by the user
     """
     output = []
@@ -62,9 +62,10 @@ def news_list(curr, timezone, limit_date):
     column = soup.find("channel").find("title").text
 
     # With each item found in curr (column), create a article object and store in the output variable
-    # If the article's title is already in output, do not append it to output
+    # If the article is already in output, do not append it to output
     for item in soup.find_all("item"):
         new_art = Article(
+            item.find("guid").text,
             item.find("title").text.strip(),
             item.find("pubDate").text,
             item.find("link").text,
@@ -85,6 +86,25 @@ def news_list(curr, timezone, limit_date):
     return output
 
 
+def parse_feeds(feeds_dict, timezone, limit_date):
+    """
+    Runs news_list on every fetched feed, leaving out any feed that fails so the others still come through
+
+    :param feeds_dict: Dictionary returned by fetch_all_feeds
+    :param timezone: Requested timezone object by the user
+    :param limit_date: A limit date requested by the user
+    :return: Dictionary with feed names as keys and lists of Article as values
+    """
+    parsed = {}
+    for name, feed in feeds_dict.items():
+        try:
+            parsed[name] = news_list(feed, timezone, limit_date)
+        except Exception as e:
+            print(f"Failed to parse {name} feed: {e}")
+
+    return parsed
+
+
 def new_news(seconds, time_zone):
     """
     Checks for new news stored in every RSS feed
@@ -96,11 +116,9 @@ def new_news(seconds, time_zone):
     called_time = datetime.datetime.now(datetime.timezone.utc).astimezone(time_zone)
 
     while True:
-        feeds_dict = fetch_all_feeds()
-
         all_articles = []
-        for feed in feeds_dict.values():
-            all_articles.extend(news_list(feed, time_zone, called_time))
+        for articles in parse_feeds(fetch_all_feeds(), time_zone, called_time).values():
+            all_articles.extend(articles)
 
         curr_news = sorted(all_articles, reverse=True)
 
@@ -137,11 +155,9 @@ def discord_start(disc_token, gemini_token, time_zone):
         called_time = datetime.datetime.now(datetime.timezone.utc).astimezone(time_zone)
 
         while True:
-            feeds_dict = fetch_all_feeds()
-
             all_articles = []
-            for feed in feeds_dict.values():
-                all_articles.extend(news_list(feed, time_zone, called_time))
+            for articles in parse_feeds(fetch_all_feeds(), time_zone, called_time).values():
+                all_articles.extend(articles)
 
             curr_news = sorted(all_articles, reverse=True)
 

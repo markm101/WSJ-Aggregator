@@ -4,7 +4,8 @@ uvicorn
 requests
 beautifulsoup4
 lxml
+tzdata
 
 # Optional (required for Discord bot and AI grading only)
-# discord.py
+# py-cord
 # google-genai
